@@ -30,10 +30,10 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
-	MusicPlayer musicPlayer;
-	if (musicPlayer.loadMusic("Arcade Background.wav",1))
+	Music music;
+	if (music.load("Memory Reboot.mp3",1))
 	{
-		musicPlayer.play();
+		music.play();
 	}
 	else
 	{
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.sym == SDLK_q)
 				{
 					std::cout << "Pressed Q key,Toggling Loop!" << std::endl;
-					musicPlayer.toggleLooping();
+					music.toggleLooping();
 				}
 			}
 		}

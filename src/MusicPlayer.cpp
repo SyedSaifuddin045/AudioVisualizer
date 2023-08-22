@@ -1,8 +1,8 @@
 #include <MusicPlayer.h>
 
-MusicPlayer* MusicPlayer::s_instance = nullptr;
+Music* Music::s_instance = nullptr;
 
-MusicPlayer::MusicPlayer() :m_music(nullptr), looping(false) {
+Music::Music() :m_music(nullptr), looping(false) {
 	if (!s_instance)
 	{
 		s_instance = this;
@@ -13,25 +13,25 @@ MusicPlayer::MusicPlayer() :m_music(nullptr), looping(false) {
 	channel = 0;
 }
 
-MusicPlayer::~MusicPlayer() {
+Music::~Music() {
 	Mix_CloseAudio();
 	s_instance = nullptr;
 }
 
-bool MusicPlayer::loadMusic(const std::string& filePath,int _channel) {
+bool Music::load(const std::string& filePath,int _channel) {
 	m_music = Mix_LoadMUS(filePath.c_str());
 	return m_music != nullptr;
 	channel = _channel;
 }
 
-void MusicPlayer::play() {
+void Music::play() {
 	if (m_music)
 	{
 		Mix_PlayMusic(m_music,1);
 		Mix_HookMusicFinished(MusicFinishedCallback);
 	}
 }
-void MusicPlayer::toggleLooping()
+void Music::toggleLooping()
 {
 	if (m_music)
 	{
@@ -49,7 +49,7 @@ void MusicPlayer::toggleLooping()
 	}
 }
 
-void MusicPlayer::MusicFinishedCallback()
+void Music::MusicFinishedCallback()
 {
 	if (s_instance->looping)
 	{
@@ -57,7 +57,7 @@ void MusicPlayer::MusicFinishedCallback()
 	}
 }
 
-void MusicPlayer::pause() {
+void Music::pause() {
 	if (m_music)
 	{
 		Mix_PauseMusic();
@@ -66,22 +66,22 @@ void MusicPlayer::pause() {
 
 
 
-Mix_Music* MusicPlayer::getMusic() const
+Mix_Music* Music::getMusic() const
 {
 	return nullptr;
 }
 
-void MusicPlayer::resume() {
+void Music::resume() {
 	if (Mix_PausedMusic()) {
 		Mix_ResumeMusic();
 	}
 }
 
-void MusicPlayer::stop() {
+void Music::stop() {
 	Mix_HaltMusic();
 }
 
-void MusicPlayer::restart()
+void Music::restart()
 {
 	if (m_music)
 	{
@@ -90,6 +90,6 @@ void MusicPlayer::restart()
 	}
 }
 
-void MusicPlayer::setVolume(int volume) {
+void Music::setVolume(int volume) {
 	Mix_VolumeMusic(volume);
 }

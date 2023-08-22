@@ -3,12 +3,12 @@
 #include <string>
 #include <iostream>
 
-class MusicPlayer {
+class Music {
 public:
-	MusicPlayer();
-	~MusicPlayer();
+	Music();
+	~Music();
 
-	bool loadMusic(const std::string& filePath,int _channel);
+	bool load(const std::string& filePath,int _channel);
 	void play();
 	void pause();
 	void resume();
@@ -18,11 +18,11 @@ public:
 	void toggleLooping();
 	static void MusicFinishedCallback();
 	Mix_Music* getMusic() const;
-	MusicPlayer* getInstance()const { return s_instance; }
+	Music* getInstance()const { return s_instance; }
 private:
 	bool looping;
 	Mix_Music* m_music;
 	int channel;
 
-	static MusicPlayer* s_instance;
+	static Music* s_instance;
 };
