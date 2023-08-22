@@ -1,18 +1,12 @@
-﻿#include <iostream>
-
+﻿#include <AudioVisualizer.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
-// if we're compiling for iOS (iPhone/iPad)
-#ifdef __IPHONEOS__
-#	include <SDL2/SDL_opengles.h> // we want to use OpenGL ES
-#else
-#	include <SDL2/SDL_opengl.h> // otherwise we want to use OpenGL
-#endif
 
 int main(int argc, char* argv[])
 {
 	// Initialize SDL with video
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
 	// Create an SDL window
 	SDL_Window* window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
@@ -36,10 +30,20 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 
+	MusicPlayer musicPlayer;
+	if (musicPlayer.loadMusic("Arcade Background.wav",1))
+	{
+		musicPlayer.play();
+	}
+	else
+	{
+		std::cout << "failed to load music into Music Player" << std::endl;
+	}
+
 	SDL_Event event;	 // used to store any events from the OS
 	bool running = true; // used to determine if we're running the game
 
-	glClearColor(1, 0, 0, 1);
+	glClearColor(0, 0, 0, 1);
 	while (running)
 	{
 		// poll for events from SDL
@@ -48,6 +52,14 @@ int main(int argc, char* argv[])
 			// determine if the user still wants to have the window open
 			// (this basically checks if the user has pressed 'X')
 			running = event.type != SDL_QUIT;
+			if (event.type == SDL_KEYDOWN)
+			{
+				if (event.key.keysym.sym == SDLK_q)
+				{
+					std::cout << "Pressed Q key,Toggling Loop!" << std::endl;
+					musicPlayer.toggleLooping();
+				}
+			}
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT);
