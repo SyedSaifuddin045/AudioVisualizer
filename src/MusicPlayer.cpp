@@ -11,6 +11,7 @@ Music::Music() :m_music(nullptr), looping(false) {
 		std::cout << "Audio Mixer Initialization Error : " << Mix_GetError() << std::endl;
 	}
 	channel = 0;
+	volume = MIX_MAX_VOLUME;
 }
 
 Music::~Music() {
@@ -18,7 +19,7 @@ Music::~Music() {
 	s_instance = nullptr;
 }
 
-bool Music::load(const std::string& filePath,int _channel) {
+bool Music::load(const std::string& filePath, int _channel) {
 	m_music = Mix_LoadMUS(filePath.c_str());
 	return m_music != nullptr;
 	channel = _channel;
@@ -27,7 +28,7 @@ bool Music::load(const std::string& filePath,int _channel) {
 void Music::play() {
 	if (m_music)
 	{
-		Mix_PlayMusic(m_music,1);
+		Mix_PlayMusic(m_music, 1);
 		Mix_HookMusicFinished(MusicFinishedCallback);
 	}
 }
@@ -90,6 +91,10 @@ void Music::restart()
 	}
 }
 
-void Music::setVolume(int volume) {
-	Mix_VolumeMusic(volume);
+void Music::setVolume(int _volume) {
+	_volume = std::max(0, std::min(128, _volume));
+
+	Mix_VolumeMusic(_volume);
+	volume = _volume;
+	std::cout << "Volume : " << volume << std::endl;
 }

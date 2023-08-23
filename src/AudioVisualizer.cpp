@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	}
 
 	Music music;
-	if (music.load("Memory Reboot.mp3",1))
+	if (music.load("Memory Reboot.mp3", 1))
 	{
 		music.play();
 	}
@@ -58,6 +58,16 @@ int main(int argc, char* argv[])
 				{
 					std::cout << "Pressed Q key,Toggling Loop!" << std::endl;
 					music.toggleLooping();
+				}
+				if (event.key.keysym.sym == SDLK_w)
+				{
+					music.getInstance()->setVolume(music.getInstance()->getVolume() + 10);
+					std::cout << "Increasing Volume by 10" << std::endl;
+				}
+				if (event.key.keysym.sym == SDLK_s)
+				{
+					music.getInstance()->setVolume(music.getInstance()->getVolume() - 10);
+					std::cout << "Decreasing Volume by 10" << std::endl;
 				}
 			}
 		}

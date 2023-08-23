@@ -8,7 +8,7 @@ public:
 	Music();
 	~Music();
 
-	bool load(const std::string& filePath,int _channel);
+	bool load(const std::string& filePath, int _channel);
 	void play();
 	void pause();
 	void resume();
@@ -19,10 +19,11 @@ public:
 	static void MusicFinishedCallback();
 	Mix_Music* getMusic() const;
 	Music* getInstance()const { return s_instance; }
+	int getVolume()const { return volume; }
 private:
 	bool looping;
 	Mix_Music* m_music;
 	int channel;
-
+	unsigned int volume;
 	static Music* s_instance;
 };
