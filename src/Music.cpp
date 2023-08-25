@@ -1,4 +1,4 @@
-#include <MusicPlayer.h>
+#include <Music.h>
 
 Music* Music::s_instance = nullptr;
 
@@ -7,6 +7,7 @@ Music::Music() :m_music(nullptr), looping(false) {
 	{
 		s_instance = this;
 	}
+	Mix_Init(MIX_INIT_MP3);
 	if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096) == -1) {
 		std::cout << "Audio Mixer Initialization Error : " << Mix_GetError() << std::endl;
 	}
@@ -15,6 +16,7 @@ Music::Music() :m_music(nullptr), looping(false) {
 }
 
 Music::~Music() {
+	Mix_FreeMusic(m_music);
 	Mix_CloseAudio();
 	s_instance = nullptr;
 }
