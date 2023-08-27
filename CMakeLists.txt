@@ -3,7 +3,7 @@
 project("AudioVisualizer")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17 -g")
 
 set(src_dir "${PROJECT_SOURCE_DIR}/src/")
 set(libraries "${PROJECT_SOURCE_DIR}/lib/")
@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME} ${source_files} ${header_files} ${kissfft_files})
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib/SDL2.lib ${CMAKE_SOURCE_DIR}/lib/SDL2main.lib ${CMAKE_SOURCE_DIR}/lib/SDL2_mixer.lib opengl32)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib/SDL2d.lib ${CMAKE_SOURCE_DIR}/lib/SDL2main.lib ${CMAKE_SOURCE_DIR}/lib/SDL2_mixer.lib opengl32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/lib/SDL2d.lib ${CMAKE_SOURCE_DIR}/lib/SDL2maind.lib ${CMAKE_SOURCE_DIR}/lib/SDL2_mixer.lib opengl32)
 endif()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

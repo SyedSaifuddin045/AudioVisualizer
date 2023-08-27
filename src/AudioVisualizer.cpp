@@ -14,7 +14,6 @@ std::mutex fft_mutex;
 float fft_max = 0.0f;
 #define samples 128
 kiss_fft_cpx* fftOut;
-float frequency[samples];
 int times_updated = 0, times_displayed = 0;
 
 float amp(std::complex<float> z)
@@ -31,8 +30,6 @@ void noEffect(int chan, void* stream, int len, void* udata)
 		return;
 	if (len < samples)
 		return;
-
-	//int average_count = len / samples;
 
 	std::lock_guard<std::mutex> lock(fft_mutex);
 	kiss_fft_cfg cfg = kiss_fft_alloc(len, 0, nullptr, nullptr);
@@ -55,12 +52,13 @@ void noEffect(int chan, void* stream, int len, void* udata)
 
 	for (int i = 0; i < len; i++) {
 		fftIn[i].r = reinterpret_cast<Uint8*>(stream)[i];
+		fftIn[i].i = 0.0f;
 	}
 
 	// Perform FFT
 	kiss_fft(cfg, fftIn, fftOut);
 
-	for (int i = 0; i < len; ++i)
+	for (int i = 1; i < len; ++i)
 	{
 		std::complex<float> z = std::complex(fftOut[i].r, fftOut[i].i);
 		int c = amp(z);
@@ -82,7 +80,7 @@ int main(int argc, char* argv[])
 {
 	// Initialize SDL with video
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	Mix_Init(MIX_INIT_MP3);
+	Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG);
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) == -1) {
 		std::cerr << "SDL Mixer initialization failed: " << Mix_GetError() << std::endl;
@@ -98,6 +96,7 @@ int main(int argc, char* argv[])
 
 	// Create an SDL window
 	SDL_Window* window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
+	SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
 
 	// if failed to create a window
 	if (!window)
@@ -114,7 +113,7 @@ int main(int argc, char* argv[])
 
 	glClearColor(0, 0, 0, 1);
 
-	SDL_Color baseColor = { 255,200,60 };
+	SDL_Color baseColor = { 0,220,90 };
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
@@ -125,9 +124,34 @@ int main(int argc, char* argv[])
 		// poll for events from SDL
 		while (SDL_PollEvent(&event))
 		{
-			// determine if the user still wants to have the window open
-			// (this basically checks if the user has pressed 'X')
-			running = event.type != SDL_QUIT;
+			switch (event.type)
+			{
+			case SDL_QUIT:
+				running = false;
+				break;
+			case SDL_DROPFILE:
+				char* droppedFile = event.drop.file;
+				std::string file = droppedFile;
+				std::cout << "File : " << droppedFile << std::endl;
+				if (file.find(".mp3") != std::string::npos || file.find(".ogg") != std::string::npos || file.find(".wav") != std::string::npos)
+				{
+					Mix_FreeChunk(musicChunk);
+					std::cout << "Loading your audio file" << std::endl;
+					musicChunk = Mix_LoadWAV(file.c_str());
+					Mix_FadeOutChannel(0, 2000);
+					Mix_UnregisterEffect(0, noEffect);
+					Mix_PlayChannel(0, musicChunk, -1);
+					if (!Mix_RegisterEffect(0, noEffect, NULL, NULL)) {
+						printf("Mix_RegisterEffect: %s\n", Mix_GetError());
+					}
+				}
+				else
+				{
+					std::cout << "Sorry Unsupported file format" << std::endl;
+				}
+				break;
+			}
+
 		}
 
 		if (fft_max >= 0)
@@ -142,7 +166,7 @@ int main(int argc, char* argv[])
 			int rectWidth = window_width / samples;
 			//std::cout << rectWidth << std::endl;
 			std::lock_guard<std::mutex> lock(fft_mutex);
-			for (int i = 0; i < samples; i++)
+			for (int i = 1; i < samples; i++)
 			{
 				int randomColor = distribution(gen);
 				std::complex<float> z = std::complex<float>(fftOut[i].r, fftOut[i].i);
@@ -150,10 +174,10 @@ int main(int argc, char* argv[])
 				if (fft_max > 0)
 					rectHeight /= std::abs(fft_max);
 
-				int newHeight = (rectHeight)*window_height;
+				int newHeight = (window_height * 0.8f) * (rectHeight);
 				//std::cout << "fft_max : " << fft_max << "rect height : " << newHeight << std::endl;
-				SDL_SetRenderDrawColor(renderer, baseColor.r + randomColor, baseColor.g, baseColor.b + randomColor, SDL_ALPHA_OPAQUE);
-				SDL_Rect rect = { i * rectWidth, window_height - newHeight, rectWidth, newHeight };
+				SDL_SetRenderDrawColor(renderer, baseColor.r + i, baseColor.g, baseColor.b + i, SDL_ALPHA_OPAQUE);
+				SDL_Rect rect = { (i-1) * rectWidth, window_height - newHeight, rectWidth, newHeight };
 				SDL_RenderFillRect(renderer, &rect);
 			}
 			times_displayed++;
